@@ -1,66 +1,101 @@
 //
-//  pruebaViewController.m
+//  QRScannerViewController.m
 //  prueba
 //
-//  Created by Alejandro on 1/24/13.
+//  Created by Alejandro on 1/28/13.
 //  Copyright (c) 2013 somapps. All rights reserved.
 //
 #import <AudioToolbox/AudioToolbox.h>
 #import <AVFoundation/AVFoundation.h>
-#import "pruebaViewController.h"
+#import "QRScannerViewController.h"
 
-@interface pruebaViewController ()
-@property (nonatomic, weak) ZXCapture* capture;
+@interface QRScannerViewController ()
+@property (nonatomic, retain) ZXCapture* capture;
 
 @property (weak, nonatomic) IBOutlet UITextView *decodedLabel;
 
 @property (weak, nonatomic) IBOutlet UIView *vistaQR;
 
 - (NSString*)displayForResult:(ZXResult*)result;
+
 @end
 
-@implementation pruebaViewController
+@implementation QRScannerViewController
 
 
-@synthesize capture;
-@synthesize decodedLabel;
+- (void)navigationController:(UINavigationController *)navigationController
+      willShowViewController:(UIViewController *)viewController animated:(BOOL)animated
+{
+    [viewController viewWillAppear:animated];
+}
 
+- (void)navigationController:(UINavigationController *)navigationController
+       didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
+{
+    [viewController viewDidAppear:animated];
+}
+
+-(void)viewWillDisappear:(BOOL)animated{
+    if(animated){
+        NSLog(@"prueba");
+        [self.capture stop];
+        self.decodedLabel = nil;
+    }
+}
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    }
+    return self;
+}
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
+	// Do any additional setup after loading the view.
+    // Do any additional setup after loading the view, typically from a nib.
     self.capture = [[ZXCapture alloc] init];
     self.capture.delegate = self;
-    self.capture.rotation = 90.0f;
+    self.capture.rotation = 0.0f;
     // Use the back camera
-    self.capture.camera = self.capture.back;
+    self.capture.camera = self.capture.front;
     self.capture.layer.frame = self.vistaQR.bounds;
     [self.vistaQR.layer addSublayer:self.capture.layer];
- //   [self.view bringSubviewToFront:self.decodedLabel];
-    
+    //   [self.view bringSubviewToFront:self.decodedLabel];
+    CGAffineTransform xform = CGAffineTransformMakeRotation(M_PI/(-2.0));
+    self.vistaQR.transform = xform;
     [self.capture start];
+
 }
 
 
-- (void)viewDidUnload {
-    [super viewDidUnload];
+- (void)viewWillUnload{
+    [self viewWillUnload];
     
-    [self.capture stop];
-    self.decodedLabel = nil;
 }
-
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation {
-    return toInterfaceOrientation == UIInterfaceOrientationPortrait;
-}
-
-
 
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+-(BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+{
+    // Return YES for supported orientations
+    
+    // N.B. Even when the interface orientation indicates landscape mode
+    // this may not really be true. So we insure this is so by testing
+    // that the height of the view is less than the width
+    if (interfaceOrientation == UIInterfaceOrientationLandscapeLeft ||
+        interfaceOrientation == UIInterfaceOrientationLandscapeRight)
+    {
+        return YES;
+    }
+    else
+        return NO;
 }
 #pragma mark - Private Methods
 
@@ -149,11 +184,14 @@
         
         // Vibrate
         AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
+        [self.capture stop];
+        
     }
 }
 
 - (void)captureSize:(ZXCapture*)capture width:(NSNumber*)width height:(NSNumber*)height {
     NSLog(@"Your message, here %@, %@",height,width);
 }
+
 
 @end

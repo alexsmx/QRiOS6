@@ -1,5 +1,5 @@
 //
-//  pruebaViewController.h
+//  pruebaiPadViewController.h
 //  prueba
 //
 //  Created by Alejandro on 1/24/13.
@@ -7,8 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <ZXingObjC/ZXingObjC.h>
-@interface pruebaViewController : UIViewController <ZXCaptureDelegate>
 
+@interface pruebaiPadViewController : UIViewController 
 
 @end
